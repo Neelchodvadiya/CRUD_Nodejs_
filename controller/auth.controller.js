@@ -6,11 +6,11 @@ exports.userlogin = async (req, res) => {
         const password = req.body.password;
         const email = req.body.email;
 
-        const dataemail = await chapter.findOne({ email: email });
+        const data = await chapter.findOne({ email: email });
 
-        if (dataemail.password === password && dataemail.email === email) {
-            if (!dataemail.tokens[0]) {
-                const token = await dataemail.generateauthToken();
+        if (data.password === password && data.email === email) {
+            if (!data.tokens[0]) {
+                const token = await data.generateauthToken();
                 res.cookie("jwt", token, {
                     expires: new Date(Date.now() + 100000)
                 })
@@ -28,14 +28,14 @@ exports.userlogin = async (req, res) => {
         }
         else {
             res.status(400).json({
-                message: "page not found 001",
+                message: "page not found",
                 status: 400,
             })
         }
 
     } catch (error) {
         res.status(400).json({
-            message: "page not found 002",
+            message: "page not found",
             status: 400,
         })
 
@@ -46,12 +46,15 @@ exports.userReg = async (req, res) => {
     try {
         const userdata = await chapter(req.body);
         
-        const registerd = await userdata.save();
+        const data = await userdata.save();
         res.status(200).json({
-            message: "save data to datbase"
+            message: "save data to datbase",
+            data:data
         })
     } catch (error) {
-        res.status(200).json({
+        console.log(error);
+        res.status(400).json({
+    
             message: "not successful"
         })
     }
@@ -71,7 +74,7 @@ exports.userLogout = async (req, res) => {
         })
 
     } catch (error) {
-        res.status(200).json({
+        res.status(400).json({
             message: "something went wrong try again latter"
         })
 
@@ -82,9 +85,14 @@ exports.userLogout = async (req, res) => {
 exports.updatedata = async (req, res) => {
     try {
         const _id = req.params.id;
-        const updatechap = await chapter.findByIdAndUpdate(_id, req.body, {
+        const data = await chapter.findByIdAndUpdate(_id, req.body, {
             new: true
         });
+       
+        res.status(200).json({
+            message: "record updated successfully",
+            data:data
+        })
 
     } catch (error) {
         console.log(error);
@@ -97,19 +105,28 @@ exports.updatedata = async (req, res) => {
 exports.getalldata = async (req, res) => {
     try {
         const showdata = await chapter.find({});
-        res.send(showdata);
+        res.status(200).json({
+            msg:"displayed record",
+            data:showdata
+        });
     } catch (error) {
-
+        res.status(400).json({
+            message: "can not display"
+        })
     }
-
 }
+
 exports.deleteuser = async (req, res) => {
     try {
         const _id = req.params.id;
 
-        const updatechap = await chapter.findByIdAndDelete(req.params.id, {
+        const data = await chapter.findByIdAndDelete(_id, {
             new: true
         });
+        res.status(200).json({
+            message: "user deleted"
+        })
+
 
     } catch (error) {
         console.log(error);
