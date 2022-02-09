@@ -1,19 +1,16 @@
-const jwt = require("jsonwebtoken");
+
 const chapter = require("../models/auth.models");
 
 exports.userlogin = async (req, res) => {
     try {
         const password = req.body.password;
         const email = req.body.email;
-        // console.log(email);
-        // console.log(password);
 
         const dataemail = await chapter.findOne({ email: email });
-        // console.log(dataemail.name);
+
         if (dataemail.password === password && dataemail.email === email) {
             if (!dataemail.tokens[0]) {
                 const token = await dataemail.generateauthToken();
-                // console.log(token);
                 res.cookie("jwt", token, {
                     expires: new Date(Date.now() + 100000)
                 })
@@ -21,7 +18,6 @@ exports.userlogin = async (req, res) => {
                 res.status(201).json({
                     message: "Login Succesfull",
                     status: 201,
-
                 })
             } else {
                 res.status(400).json({
@@ -36,8 +32,6 @@ exports.userlogin = async (req, res) => {
                 status: 400,
             })
         }
-        //  console.log(dataemail);
-
 
     } catch (error) {
         res.status(400).json({
@@ -46,13 +40,12 @@ exports.userlogin = async (req, res) => {
         })
 
     }
-
 }
 
 exports.userReg = async (req, res) => {
     try {
         const userdata = await chapter(req.body);
-        // const token = await userdata.generateauthToken();
+        
         const registerd = await userdata.save();
         res.status(200).json({
             message: "save data to datbase"
@@ -62,7 +55,6 @@ exports.userReg = async (req, res) => {
             message: "not successful"
         })
     }
-
 }
 
 exports.userLogout = async (req, res) => {
@@ -85,3 +77,44 @@ exports.userLogout = async (req, res) => {
 
     }
 }
+
+
+exports.updatedata = async (req, res) => {
+    try {
+        const _id = req.params.id;
+        const updatechap = await chapter.findByIdAndUpdate(_id, req.body, {
+            new: true
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({
+            message: "did not update"
+        })
+    }
+}
+
+exports.getalldata = async (req, res) => {
+    try {
+        const showdata = await chapter.find({});
+        res.send(showdata);
+    } catch (error) {
+
+    }
+
+}
+exports.deleteuser = async (req, res) => {
+    try {
+        const _id = req.params.id;
+
+        const updatechap = await chapter.findByIdAndDelete(req.params.id, {
+            new: true
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({
+            message: "did not deleted"
+        })
+    }
+}  
